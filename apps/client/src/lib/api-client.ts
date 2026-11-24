@@ -1,10 +1,17 @@
 import { getToken, setToken, removeToken } from "./token-storage.ts";
+import { queryClient } from "./react-query.ts";
 
 const API_BASE = "";
 
 let refreshInFlight: Promise<boolean> | null = null;
 let csrfToken: string | null = null;
 let csrfTokenInFlight: Promise<string> | null = null;
+
+const handleAuthFailure = () => {
+  removeToken();
+  localStorage.removeItem("authUser");
+  queryClient.setQueryData(["auth-user"], null);
+};
 
 const getCsrfToken = async (forceRefresh = false): Promise<string> => {
   if (csrfToken && !forceRefresh) {
@@ -61,14 +68,14 @@ const refreshSession = async (): Promise<boolean> => {
             return true;
           }
           // If no token in response, consider it failed
-          removeToken();
+          handleAuthFailure();
           return false;
         }
-        removeToken();
+        handleAuthFailure();
         return false;
       })
       .catch(() => {
-        removeToken();
+        handleAuthFailure();
         return false;
       })
       .finally(() => {
@@ -113,8 +120,7 @@ export const apiClient = async <T>(endpoint: string, options: RequestInit = {}):
       response = await doFetch(requiresCsrfToken ? await getCsrfToken() : null);
     } else {
       // Refresh failed → clear any stored user data and token
-      removeToken();
-      // Optionally clear user from cache (handled elsewhere)
+      handleAuthFailure();
     }
   }
 

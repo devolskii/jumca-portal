@@ -43,6 +43,9 @@ app.use(cookieParser(env.COOKIE_SECRET));
 
 // Session store (required by lusca's CSRF module)
 const pgPool = new pg.Pool({ connectionString: env.DATABASE_URL });
+pgPool.on("error", (err) => {
+  console.error("Unexpected error on idle pg client in session pool", err);
+});
 
 app.use(
   session({

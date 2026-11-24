@@ -1,13 +1,11 @@
 import { Router } from "express";
 import { getCourses, getElectives, saveElective } from "@/controllers/course.controller.js";
-import { authenticate } from "@/middleware/authenticate.js";
+import { authenticate, optionalAuthenticate } from "@/middleware/authenticate.js";
 
 const router = Router();
 
-router.use(authenticate);
-
-router.get("/", getCourses);
-router.get("/electives", getElectives);
-router.post("/electives", saveElective);
+router.get("/", optionalAuthenticate, getCourses);
+router.get("/electives", optionalAuthenticate, getElectives);
+router.post("/electives", authenticate, saveElective);
 
 export default router;

@@ -18,3 +18,21 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
     return res.status(401).json({ message: err instanceof Error ? err.message : "Invalid token" });
   }
 };
+
+export const optionalAuthenticate = (req: AuthRequest, _res: Response, next: NextFunction) => {
+  const token = req.headers.authorization?.replace(/^Bearer\s+/, "");
+
+  if (!token) {
+    return next();
+  }
+
+  try {
+    const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET!) as AuthRequest["user"];
+    req.user = decoded!;
+  } catch {
+    // If the token is invalid or expired, proceed without user context
+    req.user = undefined;
+  }
+
+  return next();
+};

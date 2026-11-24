@@ -27,8 +27,9 @@ export const useCurrentUser = () => {
     queryKey: AUTH_USER_KEY,
     queryFn: fetchCurrentUser,
     retry: false,
-    staleTime: 1000 * 60 * 15,
+    staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
     initialData,
+    initialDataUpdatedAt: 0,
   });
 };
