@@ -8,7 +8,7 @@ export const AUTH_USER_KEY = ["auth-user"] as const;
 export const fetchCurrentUser = async (): Promise<AuthUser | null> => {
   try {
     const res = await apiClient<MeApiResponse>("/api/auth/me");
-    return res.data;
+    return res.data.user;
   } catch {
     // If the request fails (e.g., 401), the token is likely invalid.
     // Clean up and return null.
@@ -27,8 +27,9 @@ export const useCurrentUser = () => {
     queryKey: AUTH_USER_KEY,
     queryFn: fetchCurrentUser,
     retry: false,
-    staleTime: 1000 * 60 * 15,
+    staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
     initialData,
+    initialDataUpdatedAt: 0,
   });
 };
